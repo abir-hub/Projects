@@ -1,0 +1,194 @@
+---
+title: "FitBit"
+author: "Abir"
+date: "24/02/2022"
+output: html_document
+---
+## ASK PHASE ##
+
+**Buisness Task**
+
+* Analyze Fitbit user data to understand how consumers are using their tracker.
+* Provide recommendations for the Bellabeat marketing team.
+
+## PREPARE ##
+**About the data**
+
+This dataset was downloaded from Kaggle.
+
+**Credibility of data**
+
+Using the ROCCC method to determine the credibility of the data.ROCCC is reliability, 
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(skimr)
+library(janitor)
+```
+**Loading and naming the data that we are going to work**
+```{r}
+setwd("C:/Users/HP/Desktop/Notes/DATA ANALYST/Project/Bellabeat/archive/Fitabase Data")
+daily_activity <- read.csv("dailyActivity_merged.csv")
+weight_log <- read.csv("weightLogInfo_merged.csv")
+sleep_log <- read.csv("sleepDay_merged.csv")
+```
+## PROCESS ##
+```{r}
+colnames(daily_activity)
+```
+```{r}
+colnames(weight_log)
+```
+```{r}
+colnames(sleep_log)
+```
+```{r}
+head(daily_activity)
+```
+```{r}
+head(weight_log)
+```
+```{r}
+head(sleep_log)
+```
+Counting of how many distinct values are in the datasets' ID columns
+```{r}
+n_distinct(daily_activity$Id)
+```
+```{r}
+n_distinct(weight_log$Id)
+```
+```{r}
+n_distinct(sleep_log$Id)
+```
+From the number of distinct ID's enteres in three datasets, there were much people who manually entered their data.
+Now, checking the duplicates.
+```{r}
+nrow(daily_activity)
+```
+```{r}
+nrow(weight_log)
+```
+```{r}
+nrow(sleep_log)
+```
+Now,
+```{r}
+nrow(daily_activity[duplicated(daily_activity),])
+```
+```{r}
+nrow(weight_log[duplicated(weight_log),])
+```
+```{r}
+nrow(sleep_log[duplicated(sleep_log),])
+```
+There are 3 duplicates in sleep_log dataframe. So we create new sleep_log_new data frame
+without any duplicates
+```{r}
+sleep_log_new <- unique(sleep_log)
+```
+Now, checking sleep_log_new for duplicates
+```{r}
+nrow(sleep_log_new[duplicated(sleep_log_new),])
+```
+```{r}
+nrow(sleep_log_new)
+```
+## Analyze ##
+Now that the data is loaded and clean, let's look at the data's summary statistics
+```{r}
+daily_activity %>%
+  select(TotalSteps,
+         TotalDistance,
+         FairlyActiveMinutes,
+         VeryActiveDistance,
+         SedentaryMinutes,
+         Calories) %>%
+  summary()
+```
+```{r}
+sleep_log_new %>%
+  select(TotalSleepRecords,
+         TotalMinutesAsleep,
+         TotalTimeInBed)%>%
+  summary()
+```
+```{r}
+weight_log %>%
+  select(WeightPounds,
+         BMI)%>%
+  summary()
+```
+**Observations of analysis**
+
+daily_activity:
+
+* The average total daily steps taken by users were 7,360.
+* On average, users burned 2,304 calories daily.
+* Average very active Minutes were 21.16 minutes.
+* Average Sedentary Minutes were 991.2 minutes.
+
+sleep_log_new:
+
+* Users slept on average of 419.2 minnutes, or around 7 hors.
+* Users time asleep and time in bed was fairly similar.
+
+weight_log:
+
+* The data in weight_log in very less.
+* Users are not entering their data into the app.
+
+## Visualizations ##
+**Relationships between Total Steps and Sedentary Minutes**
+```{r}
+ggplot(data=daily_activity)+
+  geom_point(mapping = aes(x=TotalSteps, y=SedentaryMinutes, color = Calories))+
+  geom_smooth(mapping = aes(x=TotalSteps, y=SedentaryMinutes))+
+  labs(title="Relationship Between Total Steps and Sedentary Minutes", x="Total Steps",y="Sedentary Minutes")
+```
+**Relationship between total minutes asleep and total times in bed**
+```{r}
+ggplot(data=sleep_log_new)+
+  geom_point(mapping=aes(x=TotalMinutesAsleep, y=TotalTimeInBed,))+
+  geom_smooth(mapping=aes(x=TotalMinutesAsleep, y=TotalTimeInBed,))+
+  labs(title = "Relationship between total minutes asleep and total times in bed", x = "TotalMinutesAsleep", y = "TotalTimeInBed") 
+```
+
+```{r}
+ggplot(data = daily_activity) +
+  geom_point(mapping=aes(x=TotalSteps, y=Calories, color= VeryActiveMinutes)) +
+  labs(title = "Relationship Between Total Steps and Calories", x = "Total Steps", y = "Calories Burned") 
+```
+**Relationship between Sedentary Minutes and Calories**
+```{r}
+ggplot(data = daily_activity)+
+  geom_point(mapping = aes(x=SedentaryMinutes,y=Calories, color = "violet"))+
+  geom_smooth(mapping = aes(x=SedentaryMinutes,y=Calories))+
+  labs(title = "Relationship between Sedentary Minutes and Calories",x="Sedentary Minutes",y="Calories Burned")
+```
+**Relationship between Very active minutes and calories**
+```{r}
+ggplot(data = daily_activity) +
+  geom_point(mapping = aes(x= VeryActiveMinutes, y = Calories, color = "red")) + 
+  geom_smooth(mapping=aes(x=VeryActiveMinutes, y=Calories)) +
+  labs(title = "Relationship Between Very Active Minutes and Calories", x = "Very Active Minutes", y = "Calories Burned")
+```
+## Key Findings ##
+
+**Users are not creating manual entries**
+
+* Only 33 distinct user id's in daily activity, 24 distinct in sleep log and 8 distinct in weight log.
+* Therefore, Bellabeat should promote body positivity, so that users feel comfortable manually entering their weight.
+
+**Not all users sleep with their fitbit**
+
+* Only 24 users had sleep data. That's why Bellbeat should promote the battery longevity and comfortness of the device.
+
+**Active time**
+
+* Bellabeat should promote that people don't need high intensity workouts for burning calories.
+* The app should promote all levels of excercise like yoga, marathon. Bellabeat continue to emphasize that all are welcome, and that the Leaf is so much more than tracking fitness.
+
+
+
